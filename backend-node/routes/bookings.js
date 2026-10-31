@@ -1,0 +1,45 @@
+import { Router } from "express";
+import { v4 as uuid } from "uuid";
+import db from "../db.js";
+import { authRequired } from "../middleware/auth.js";
+
+const router = Router();
+
+router.post("/", authRequired, (req, res) => {
+  try {
+    const { slotId, date, startTime, duration } = req.body;
+    const slot = db.prepare("SELECT * FROM slots WHERE id = ?").get(slotId);
+    if (!slot) return res.status(404).json({ error: "Slot not found" });
+    if (slot.status !== "available") return res.status(409).json({ error: "Slot not available" });
+    const amount = slot.price_per_hour * duration;
+    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
+    if (user.wallet < amount) return res.status(402).json({ error: "Insufficient wallet" });
+    const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
+    db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, duration, amount);
+    db.prepare("UPDATE slots SET status = 'reserved' WHERE id = ?").run(slotId);
+    db.prepare("UPDATE users SET wallet = wallet - ? WHERE id = ?").run(amount, req.user.id);
+    const earnedPoints = slot.type === "ev" ? 50 : 20;
+    db.prepare("UPDATE users SET points = points + ? WHERE id = ?").run(earnedPoints, req.user.id);
+    db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "debit", amount, `Booking ${slot.label}`);
+    res.json({ ok: true, bookingId, amount, earnedPoints });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Booking failed" });
+  }
+});
+
+router.get("/mine", authRequired, (req, res) => {
+  res.json(db.prepare("SELECT b.*, s.label as slot_label, s.type as slot_type FROM bookings b JOIN slots s ON s.id = b.slot_id WHERE b.user_id = ? AND b.status = 'active' ORDER BY b.created_at DESC").all(req.user.id));
+});
+
+router.post("/:id/cancel", authRequired, (req, res) => {
+  const booking = db.prepare("SELECT * FROM bookings WHERE id = ? AND user_id = ?").get(req.params.id, req.user.id);
+  if (!booking) return res.status(404).json({ error: "Not found" });
+  db.prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ?").run(booking.id);
+  db.prepare("UPDATE slots SET status = 'available' WHERE id = ?").run(booking.slot_id);
+  db.prepare("UPDATE users SET wallet = wallet + ? WHERE id = ?").run(booking.amount, req.user.id);
+  db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "credit", booking.amount, `Refund ${booking.id}`);
+  res.json({ ok: true });
+});
+
+export default router;
