@@ -27,6 +27,7 @@ export default function ParkingMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState("");
+  const [isBooking, setIsBooking] = useState(false);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -59,20 +60,26 @@ export default function ParkingMap() {
   };
 
   const handleBook = async () => {
+    if (isBooking) return;
+    setIsBooking(true);
     setError("");
+
     const result = await bookSlot(selectedSlot);
+    
     if (!result.ok) {
-      const msg = result.message || "Booking failed. Please try again.";
-      setError(msg);
-      alert(msg);
+      setError(result.message || "This slot was just booked by someone else.");
+      setIsBooking(false);
       return;
     }
+
     if (result.isOffline || !isOnline) {
       setJustBooked({ slotLabel: selectedSlot.label, isOffline: true });
     } else {
       fireConfetti();
       setJustBooked({ slotLabel: selectedSlot.label, earnedPoints: result.earnedPoints });
     }
+    
+    setIsBooking(false);
     setSelectedSlot(null);
     setTimeout(() => setJustBooked(null), 4000);
   };
@@ -122,18 +129,6 @@ export default function ParkingMap() {
           </button>
         </div>
       </div>
-
-      <AnimatePresence>
-        {offlineQueue.length > 0 && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="bg-warn/10 border border-warn/30 text-warn p-4 rounded-xl flex items-center gap-3">
-            <Clock size={20} className="animate-pulse" />
-            <div>
-              <p className="font-semibold text-sm">Pending Sync</p>
-              <p className="text-xs opacity-80">You have {offlineQueue.length} offline booking(s).</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {userLocation && (
@@ -210,8 +205,8 @@ export default function ParkingMap() {
                 </div>
               )}
               
-              <Button onClick={handleBook} className="w-full">
-                Confirm Booking
+              <Button onClick={handleBook} disabled={isBooking} className="w-full">
+                {isBooking ? "Processing..." : "Confirm Booking"}
               </Button>
             </motion.div>
           </motion.div>
