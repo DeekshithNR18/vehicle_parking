@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE TABLE IF NOT EXISTS complaints (
   id TEXT PRIMARY KEY, user_id TEXT NOT NULL, ticket_id TEXT NOT NULL,
   title TEXT NOT NULL, priority TEXT DEFAULT 'normal', status TEXT DEFAULT 'open',
-  has_photo INTEGER DEFAULT 0,`n  photo TEXT, reply TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  has_photo INTEGER DEFAULT 0, photo TEXT, reply TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS sos_alerts (
   id TEXT PRIMARY KEY, user_id TEXT NOT NULL, user_name TEXT NOT NULL,
@@ -64,4 +65,3 @@ if (slotCount.count === 0) {
 }
 
 export default db;
-
