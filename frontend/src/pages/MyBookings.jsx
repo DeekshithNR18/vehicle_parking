@@ -98,7 +98,7 @@ export default function MyBookings() {
                   </div>
                 </div>
                 <div className="w-full md:w-64 bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-lg">
-                  <QRCodeSVG value={`BOOKING:${booking.id}|SLOT:${booking.slotLabel}`} size={180} bgColor="#ffffff" fgColor="#0B0F1A" level="H" />
+                  <QRCodeSVG value={`https://vehicle-parking.vercel.app/verify?type=booking&id=${booking.id}&slot=${booking.slotLabel}`} size={180} bgColor="#ffffff" fgColor="#0B0F1A" level="H" />
                   <p className="text-deep text-xs font-bold mt-4 text-center">Scan at Gate</p>
                 </div>
               </motion.div>
@@ -115,3 +115,4 @@ export default function MyBookings() {
     </motion.div>
   );
 }
+

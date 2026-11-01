@@ -18,6 +18,7 @@ import Leaderboard from "./pages/Leaderboard";
 import GuardMode from "./pages/GuardMode";
 import Settings from "./pages/Settings";
 import CustomCursor from "./components/CustomCursor";
+import VerifyPass from "./pages/VerifyPass";
 
 function AdminRoute() {
   const { user } = useAuth();
@@ -53,6 +54,7 @@ function AppContent() {
           <Route element={<AdminRoute />}><Route path="admin" element={<AdminPanel />} /></Route>
           <Route element={<GuardRoute />}><Route path="guard" element={<GuardMode />} /></Route>
         </Route>
+        <Route path="/verify" element={<VerifyPass />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ParkingProvider>
@@ -71,3 +73,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+

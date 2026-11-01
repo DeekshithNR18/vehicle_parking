@@ -82,7 +82,7 @@ export default function Visitors() {
               </div>
               
               <div className="p-6 flex flex-col items-center">
-                <QRCodeSVG value={`VISITOR:${activePass.id}|GUESTS:${activePass.guests}`} size={160} bgColor="#ffffff" fgColor="#0B0F1A" level="H" />
+                <QRCodeSVG value={`https://vehicle-parking.vercel.app/verify?type=visitor&id=${activePass.id}&name=${activePass.name}`} size={160} bgColor="#ffffff" fgColor="#0B0F1A" level="H" />
                 
                 <div className="w-full mt-6 space-y-2">
                   <div className="flex justify-between text-sm border-b border-gray-100 pb-2">
@@ -116,3 +116,4 @@ export default function Visitors() {
     </motion.div>
   );
 }
+
