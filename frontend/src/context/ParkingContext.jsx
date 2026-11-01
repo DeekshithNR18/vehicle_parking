@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../services/api";
+import { useAuth } from "./AuthContext";
 
 const ParkingContext = createContext();
 export const useParking = () => useContext(ParkingContext);
@@ -13,25 +14,27 @@ const MOCK_LEADERBOARD = [
 ];
 
 export function ParkingProvider({ children }) {
+  const { user, refreshUser } = useAuth();
   const [slots, setSlots] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [wallet, setWallet] = useState(0);
-  const [points, setPoints] = useState(0);
+  const [points, setPoints] = useState(user?.points || 0);
   const [activity, setActivity] = useState([]);
-  
+
   useEffect(() => {
     fetchSlots();
     fetchBookings();
     fetchWallet();
   }, []);
 
+  useEffect(() => {
+    if (user?.points !== undefined) setPoints(user.points);
+  }, [user]);
+
   const fetchSlots = async () => {
     try {
       const res = await api.get("/slots");
-      const formatted = res.data.map(s => ({
-        ...s,
-        pricePerHour: s.price_per_hour
-      }));
+      const formatted = res.data.map(s => ({ ...s, pricePerHour: s.price_per_hour }));
       setSlots(formatted);
     } catch (err) {
       console.error("Failed to fetch slots", err);
@@ -78,6 +81,7 @@ export function ParkingProvider({ children }) {
       await fetchSlots();
       await fetchBookings();
       await fetchWallet();
+      await refreshUser();
 
       addActivity(`Booked slot ${slot.label}. Earned ${res.data.earnedPoints} pts!`, "success");
       return { ok: true, booking: res.data.bookingId, earnedPoints: res.data.earnedPoints };

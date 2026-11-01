@@ -38,6 +38,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const res = await api.get("/auth/me");
+      setUser(res.data.user);
+      localStorage.setItem("vp_user", JSON.stringify(res.data.user));
+    } catch (err) {
+      console.error("Failed to refresh user", err);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("vp_token");
     localStorage.removeItem("vp_user");
@@ -45,7 +55,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
