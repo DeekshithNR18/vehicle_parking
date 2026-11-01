@@ -7,7 +7,8 @@ import api from "../services/api";
 export default function Maintenance() {
   const [issue, setIssue] = useState("");
   const [priority, setPriority] = useState("normal");
-  const [photo, setPhoto] = useState(false);`n  const [photoBase64, setPhotoBase64] = useState(null);`n`n  const handlePhotoUpload = (e) => {`n    const file = e.target.files[0];`n    if (file) {`n      const reader = new FileReader();`n      reader.onloadend = () => {`n        setPhotoBase64(reader.result);`n        setPhoto(true);`n      };`n      reader.readAsDataURL(file);`n    }`n  };
+  const [photo, setPhoto] = useState(false);
+  const [photoBase64, setPhotoBase64] = useState(null);
   const [toast, setToast] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaints, setComplaints] = useState([]);
@@ -26,6 +27,18 @@ export default function Maintenance() {
     fetchComplaints();
   }, []);
 
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoBase64(reader.result);
+        setPhoto(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!issue.trim()) return;
@@ -35,12 +48,14 @@ export default function Maintenance() {
       const res = await api.post("/complaints", {
         title: issue,
         priority: priority,
-        hasPhoto: photo,`n        photo: photoBase64
+        hasPhoto: photo,
+        photo: photoBase64
       });
 
       setIssue("");
       setPriority("normal");
       setPhoto(false);
+      setPhotoBase64(null);
       
       setToast({ type: "success", text: `Ticket ${res.data.ticketId} created successfully!`, subtext: "Our team will look into this within 24 hours." });
       setTimeout(() => setToast(null), 5000);
@@ -108,9 +123,21 @@ export default function Maintenance() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => setPhoto(!photo)} className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${photo ? "bg-azure/20 border-azure/30 text-azure" : "bg-white/5 border-white/10 text-muted"}`}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                id="photo-upload" 
+                className="hidden" 
+                onChange={handlePhotoUpload} 
+              />
+              <label 
+                htmlFor="photo-upload"
+                className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
+                  photo ? "bg-azure/20 border-azure/30 text-azure" : "bg-white/5 border-white/10 text-muted hover:bg-white/10"
+                }`}
+              >
                 <Camera size={18} /> {photo ? "Photo Attached" : "Attach Photo"}
-              </button>
+              </label>
             </div>
             <Button type="submit" disabled={loading} className="w-full flex justify-center items-center gap-2">
               <Send size={18} /> {loading ? "Submitting..." : "Submit Complaint"}
@@ -161,6 +188,11 @@ export default function Maintenance() {
                   <span className={`px-2 py-1 rounded-md border capitalize ${getPriorityColor(selectedComplaint.priority)}`}>{selectedComplaint.priority} priority</span>
                   <span className="text-muted">{new Date(selectedComplaint.created_at).toLocaleDateString()}</span>
                 </div>
+                {selectedComplaint.photo && (
+                  <div className="mt-4">
+                    <img src={selectedComplaint.photo} alt="Complaint" className="w-full max-h-48 object-cover rounded-lg border border-white/10" />
+                  </div>
+                )}
               </div>
               <div className="bg-azure/5 rounded-2xl p-4 border border-azure/20">
                 <div className="flex items-center gap-2 mb-2">
@@ -181,6 +213,3 @@ export default function Maintenance() {
     </motion.div>
   );
 }
-
-
-
