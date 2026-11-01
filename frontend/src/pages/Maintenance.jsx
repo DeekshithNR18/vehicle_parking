@@ -7,7 +7,7 @@ import api from "../services/api";
 export default function Maintenance() {
   const [issue, setIssue] = useState("");
   const [priority, setPriority] = useState("normal");
-  const [photo, setPhoto] = useState(false);
+  const [photo, setPhoto] = useState(false);`n  const [photoBase64, setPhotoBase64] = useState(null);`n`n  const handlePhotoUpload = (e) => {`n    const file = e.target.files[0];`n    if (file) {`n      const reader = new FileReader();`n      reader.onloadend = () => {`n        setPhotoBase64(reader.result);`n        setPhoto(true);`n      };`n      reader.readAsDataURL(file);`n    }`n  };
   const [toast, setToast] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaints, setComplaints] = useState([]);
@@ -35,7 +35,7 @@ export default function Maintenance() {
       const res = await api.post("/complaints", {
         title: issue,
         priority: priority,
-        hasPhoto: photo
+        hasPhoto: photo,`n        photo: photoBase64
       });
 
       setIssue("");
@@ -181,3 +181,6 @@ export default function Maintenance() {
     </motion.div>
   );
 }
+
+
+

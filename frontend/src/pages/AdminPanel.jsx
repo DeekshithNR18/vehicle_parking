@@ -116,7 +116,7 @@ export default function AdminPanel() {
               <div key={c.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-deep/50 border border-white/5 rounded-xl gap-4">
                 <div>
                   <p className="font-semibold text-textp">{c.title}</p>
-                  <p className="text-xs text-muted">From: {c.user_name} • {new Date(c.created_at).toLocaleDateString()} • {c.priority} priority • <span className="font-mono text-azure">{c.ticket_id}</span></p>
+                  <p className="text-xs text-muted">From: {c.user_name} • {new Date(c.created_at).toLocaleDateString()} • {c.priority} priority • <span className="font-mono text-azure">{c.ticket_id}</span></p>`n                  {c.photo && (<div className="mt-2"><img src={c.photo} alt="Complaint" className="w-32 h-32 object-cover rounded-lg border border-white/10" /></div>)}
                 </div>
                 <div className="flex items-center gap-2">
                   {c.status !== "resolved" && (
@@ -156,3 +156,4 @@ export default function AdminPanel() {
     </motion.div>
   );
 }
+

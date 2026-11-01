@@ -6,11 +6,11 @@ import { authRequired, adminRequired } from "../middleware/auth.js";
 const router = Router();
 
 router.post("/", authRequired, (req, res) => {
-  const { title, priority = "normal", hasPhoto = false } = req.body;
+  const { title, priority = "normal", hasPhoto = false, photo = null } = req.body;
   if (!title) return res.status(400).json({ error: "Title required" });
   const ticketId = `TKT-${Math.floor(1000 + Math.random() * 9000)}`;
   const id = uuid();
-  db.prepare("INSERT INTO complaints (id, user_id, ticket_id, title, priority, has_photo) VALUES (?, ?, ?, ?, ?, ?)").run(id, req.user.id, ticketId, title, priority, hasPhoto ? 1 : 0);
+  db.prepare("INSERT INTO complaints (id, user_id, ticket_id, title, priority, has_photo, photo) VALUES (?, ?, ?, ?, ?, ?, ?)").run(id, req.user.id, ticketId, title, priority, hasPhoto ? 1 : 0, photo);
   res.json({ ok: true, id, ticketId });
 });
 
@@ -35,3 +35,5 @@ router.post("/:id/resolve", authRequired, adminRequired, (req, res) => {
 });
 
 export default router;
+
+
