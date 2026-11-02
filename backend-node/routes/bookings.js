@@ -13,6 +13,7 @@ router.post("/", authRequired, (req, res) => {
     if (slot.status !== "available") return res.status(409).json({ error: "Slot not available" });
     const amount = slot.price_per_hour * duration;
     const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found. Please log out and log in again." });
     if (user.wallet < amount) return res.status(402).json({ error: "Insufficient wallet" });
     const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
     db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, duration, amount);
@@ -43,3 +44,4 @@ router.post("/:id/cancel", authRequired, (req, res) => {
 });
 
 export default router;
+
