@@ -62,7 +62,8 @@ router.post("/:id/extend", authRequired, (req, res) => {
     if (user.wallet < extraAmount) return res.status(402).json({ error: "Insufficient wallet" });
 
     const currentEnd = new Date(`${booking.date} ${booking.end_time}`).getTime();
-    const newEndTs = (isNaN(currentEnd) ? Date.now() : currentEnd) + 3600000;
+        const baseTime = Math.max(isNaN(currentEnd) ? 0 : currentEnd, Date.now());
+    const newEndTs = baseTime + 3600000;
     const newEndTime = new Date(newEndTs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     db.prepare("UPDATE bookings SET end_time = ?, duration = duration + 1, amount = amount + ? WHERE id = ?").run(newEndTime, extraAmount, booking.id);
@@ -76,3 +77,4 @@ router.post("/:id/extend", authRequired, (req, res) => {
 });
 
 export default router;
+
