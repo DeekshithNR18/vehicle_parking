@@ -63,7 +63,17 @@ router.post("/:id/extend", authRequired, (req, res) => {
 
     // Instead of parsing the old time, just add 1 hour to the CURRENT time
     // (this handles both active and expired bookings gracefully)
-    const newEndTs = Date.now() + 3600000;
+    // Parse the existing end_time. If it's already expired, extend from now.
+    // Otherwise, extend from the current end time.
+    const now = new Date();
+    const [endHours, endMinutes] = booking.end_time.replace(/(am|pm)/i, '').trim().split(':').map(Number);
+    const isPM = /pm/i.test(booking.end_time);
+    const endDate = new Date(now);
+    endDate.setHours(isPM ? (endHours % 12) + 12 : endHours % 12, endMinutes, 0, 0);
+    
+    // If end time has already passed, base off now; otherwise, extend current end
+    const baseTime = Math.max(endDate.getTime(), now.getTime());
+    const newEndTs = baseTime + 3600000;
     const newEndTime = new Date(newEndTs).toLocaleTimeString('en-IN', { 
       hour: '2-digit', 
       minute: '2-digit', 
