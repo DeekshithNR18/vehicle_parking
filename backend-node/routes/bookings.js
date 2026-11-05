@@ -61,10 +61,15 @@ router.post("/:id/extend", authRequired, (req, res) => {
     const extraAmount = booking.price_per_hour * 1;
     if (user.wallet < extraAmount) return res.status(402).json({ error: "Insufficient wallet" });
 
-    const currentEnd = new Date(`${booking.date} ${booking.end_time}`).getTime();
-        const baseTime = Math.max(isNaN(currentEnd) ? 0 : currentEnd, Date.now());
-    const newEndTs = baseTime + 3600000;
-    const newEndTime = new Date(newEndTs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // Instead of parsing the old time, just add 1 hour to the CURRENT time
+    // (this handles both active and expired bookings gracefully)
+    const newEndTs = Date.now() + 3600000;
+    const newEndTime = new Date(newEndTs).toLocaleTimeString('en-IN', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    });
 
     db.prepare("UPDATE bookings SET end_time = ?, duration = duration + 1, amount = amount + ? WHERE id = ?").run(newEndTime, extraAmount, booking.id);
     db.prepare("UPDATE users SET wallet = wallet - ? WHERE id = ?").run(extraAmount, req.user.id);
@@ -72,9 +77,7 @@ router.post("/:id/extend", authRequired, (req, res) => {
 
     res.json({ ok: true, newEndTime, extraAmount });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Extension failed" });
   }
 });
-
-export default router;
-
