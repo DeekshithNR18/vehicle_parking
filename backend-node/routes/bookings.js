@@ -7,7 +7,8 @@ const router = Router();
 
 router.post("/", authRequired, (req, res) => {
   try {
-    const { slotId, date, startTime, duration } = req.body;
+    const { slotId, startTime, duration } = req.body;
+    const date = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
     const slot = db.prepare("SELECT * FROM slots WHERE id = ?").get(slotId);
     if (!slot) return res.status(404).json({ error: "Slot not found" });
     if (slot.status !== "available") return res.status(409).json({ error: "Slot not available" });
@@ -18,9 +19,8 @@ router.post("/", authRequired, (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found." });
     if (user.wallet < amount) return res.status(402).json({ error: "Insufficient wallet" });
 
-    const startTs = Date.now();
-    const endTs = startTs + hours * 3600000;
-    const endTime = new Date(endTs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const endTs = Date.now() + hours * 3600000;
+    const endTime = new Date(endTs).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
 
     const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
     db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, end_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, endTime, hours, amount);
