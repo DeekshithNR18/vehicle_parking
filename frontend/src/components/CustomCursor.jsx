@@ -85,7 +85,7 @@ export default function CustomCursor() {
         className="fixed top-0 left-0 w-4 h-4 rounded-full pointer-events-none z-[9999]"
         style={{
           x: cursorXSpring, y: cursorYSpring,
-          border: isLight ? "2px solid transparent" : "2px solid rgba(0, 229, 160, 0.8)",
+          border: isLight ? "2px solid transparent" : "1.5px solid rgba(0, 229, 160, 0.9)",
           backgroundImage: isLight ? "linear-gradient(white, white), linear-gradient(135deg, #FF007F, #7C3AED, #00F0FF)" : "none",
           backgroundOrigin: "border-box", backgroundClip: isLight ? "content-box, border-box" : "border-box",
           boxShadow: isLight ? "0 0 15px rgba(124, 58, 237, 0.4)" : "0 0 20px rgba(0, 229, 160, 0.4), inset 0 0 10px rgba(0, 229, 160, 0.4)",
@@ -107,4 +107,5 @@ export default function CustomCursor() {
     </>
   );
 }
+
 
