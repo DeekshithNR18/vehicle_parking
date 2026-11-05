@@ -46,7 +46,7 @@ export default function AppLayout() {
         <div className="absolute bottom-0 right-0 w-[40vw] h-[40vw] bg-azure/5 rounded-full blur-[120px]" />
       </div>
 
-      <aside className="hidden md:flex w-64 bg-panel/80 backdrop-blur-xl border-r border-white/5 flex-col relative z-10">
+      <aside className="hidden md:flex w-64 bg-panel/80 backdrop-blur-xl border-r border-white/5 flex-col relative z-[100]">
         <div className="p-6 flex items-center justify-between border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-mint/10 rounded-xl"><Car size={24} className="text-mint" /></div>

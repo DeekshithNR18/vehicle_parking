@@ -65,6 +65,7 @@ export function ParkingProvider({ children }) {
     }
   };
   const refreshWallet = fetchWallet;
+
   const addActivity = (text, type = "info") => {
     setActivity((prev) => [{ id: Date.now(), text, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 20));
   };
@@ -134,4 +135,5 @@ export function ParkingProvider({ children }) {
     </ParkingContext.Provider>
   );
 }
+
 
