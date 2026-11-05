@@ -81,3 +81,4 @@ router.post("/:id/extend", authRequired, (req, res) => {
     res.status(500).json({ error: "Extension failed" });
   }
 });
+export default router;
