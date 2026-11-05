@@ -82,7 +82,7 @@ export default function CustomCursor() {
     <>
       {sparkles.map((s) => <Sparkle key={s.id} x={s.x} y={s.y} isLight={isLight} />)}
       <motion.div
-        className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-4 h-4 rounded-full pointer-events-none z-[9999]"
         style={{
           x: cursorXSpring, y: cursorYSpring,
           border: isLight ? "2px solid transparent" : "2px solid rgba(0, 229, 160, 0.8)",
@@ -107,3 +107,4 @@ export default function CustomCursor() {
     </>
   );
 }
+
