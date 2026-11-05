@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const SOCIETY_LOCATION = [12.9716, 77.5946];
-const USER_LOCATION = [12.9725, 77.5960];
+const USER_LOCATION = [12.9716, 77.5946];
 
 export default function ParkingMap() {
   const { slots, bookSlot, offlineQueue } = useParking();

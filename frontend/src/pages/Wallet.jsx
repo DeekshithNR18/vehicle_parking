@@ -43,7 +43,7 @@ export default function Wallet() {
           </div>
           <div>
             <p className="text-muted text-sm mb-1">Available Balance</p>
-            <h2 className="text-5xl font-extrabold text-textp">Rs. {wallet}</h2>
+            <h2 className="text-5xl font-extrabold text-textp">Rs. {Number(wallet).toLocaleString('en-IN')}</h2>
           </div>
         </div>
 
@@ -52,7 +52,7 @@ export default function Wallet() {
           <form onSubmit={handleTopUp} className="space-y-4">
             <div>
               <label className="text-xs text-muted mb-1 block">Amount (Rs.)</label>
-              <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" className="w-full bg-deep/50 border border-white/10 rounded-xl px-4 py-3 text-textp focus:outline-none focus:border-mint/50" />
+              <input type="number" max="5000" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" className="w-full bg-deep/50 border border-white/10 rounded-xl px-4 py-3 text-textp focus:outline-none focus:border-mint/50" />
             </div>
             <div className="flex gap-2">
               {[100, 500, 1000].map(val => (

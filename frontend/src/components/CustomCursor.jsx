@@ -90,7 +90,7 @@ export default function CustomCursor() {
           backgroundOrigin: "border-box", backgroundClip: isLight ? "content-box, border-box" : "border-box",
           boxShadow: isLight ? "0 0 15px rgba(124, 58, 237, 0.4)" : "0 0 20px rgba(0, 229, 160, 0.4), inset 0 0 10px rgba(0, 229, 160, 0.4)",
         }}
-        animate={{ scale: isHovered ? 2 : 1, rotate: isLight ? 360 : 0, backgroundColor: isHovered ? (isLight ? "rgba(255, 0, 127, 0.1)" : "rgba(0, 229, 160, 0.1)") : "transparent" }}
+        animate={{ scale: isHovered ? 1.3 : 1, rotate: isLight ? 360 : 0, backgroundColor: isHovered ? (isLight ? "rgba(255, 0, 127, 0.1)" : "rgba(0, 229, 160, 0.1)") : "transparent" }}
         transition={{ scale: { duration: 0.2 }, rotate: { duration: 3, repeat: Infinity, ease: "linear" } }}
       />
       <motion.div
