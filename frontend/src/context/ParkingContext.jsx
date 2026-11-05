@@ -64,7 +64,7 @@ export function ParkingProvider({ children }) {
       console.error("Failed to fetch wallet", err);
     }
   };
-
+  const refreshWallet = fetchWallet;
   const addActivity = (text, type = "info") => {
     setActivity((prev) => [{ id: Date.now(), text, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 20));
   };
@@ -127,7 +127,7 @@ export function ParkingProvider({ children }) {
   return (
     <ParkingContext.Provider value={{ 
       slots, bookings, wallet, points, activity, stats, 
-      bookSlot, cancelBooking, topUp, addActivity, 
+            bookSlot, cancelBooking, topUp, addActivity, refreshWallet,
       offlineQueue: [], MOCK_LEADERBOARD 
     }}>
       {children}

@@ -5,7 +5,7 @@ import { useParking } from "../context/ParkingContext";
 import Button from "../components/ui/Button";
 
 export default function Wallet() {
-  const { wallet, topUp } = useParking();
+  const { wallet, topUp, refreshWallet } = useParking();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +20,7 @@ export default function Wallet() {
     
     if (result.ok) {
       setAmount("");
+      if (refreshWallet) await refreshWallet();
     } else {
       alert("Failed to top up wallet.");
     }
