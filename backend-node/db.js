@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS slots (
 );
 CREATE TABLE IF NOT EXISTS bookings (
   id TEXT PRIMARY KEY, user_id TEXT NOT NULL, slot_id TEXT NOT NULL,
-  date TEXT NOT NULL, start_time TEXT NOT NULL, duration INTEGER NOT NULL,
+  date TEXT NOT NULL, start_time TEXT NOT NULL, end_time TEXT, duration INTEGER NOT NULL,
   amount REAL NOT NULL, status TEXT DEFAULT 'active',
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -65,3 +65,4 @@ if (slotCount.count === 0) {
 }
 
 export default db;
+

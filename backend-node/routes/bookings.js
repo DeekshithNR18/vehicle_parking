@@ -15,11 +15,15 @@ router.post("/", authRequired, (req, res) => {
     const hours = duration || 2;
     const amount = slot.price_per_hour * hours;
     const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
-    if (!user) return res.status(404).json({ error: "User not found. Please log in again." });
+    if (!user) return res.status(404).json({ error: "User not found." });
     if (user.wallet < amount) return res.status(402).json({ error: "Insufficient wallet" });
 
+    const startTs = Date.now();
+    const endTs = startTs + hours * 3600000;
+    const endTime = new Date(endTs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
-    db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, hours, amount);
+    db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, end_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, endTime, hours, amount);
     db.prepare("UPDATE slots SET status = 'reserved' WHERE id = ?").run(slotId);
     db.prepare("UPDATE users SET wallet = wallet - ? WHERE id = ?").run(amount, req.user.id);
 
@@ -27,7 +31,7 @@ router.post("/", authRequired, (req, res) => {
     db.prepare("UPDATE users SET points = points + ? WHERE id = ?").run(earnedPoints, req.user.id);
     db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "debit", amount, `Booking ${slot.label} for ${hours} hrs`);
 
-    res.json({ ok: true, bookingId, amount, earnedPoints });
+    res.json({ ok: true, bookingId, amount, earnedPoints, endTime });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Booking failed" });
@@ -46,6 +50,29 @@ router.post("/:id/cancel", authRequired, (req, res) => {
   db.prepare("UPDATE users SET wallet = wallet + ? WHERE id = ?").run(booking.amount, req.user.id);
   db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "credit", booking.amount, `Refund ${booking.id}`);
   res.json({ ok: true });
+});
+
+router.post("/:id/extend", authRequired, (req, res) => {
+  try {
+    const booking = db.prepare("SELECT b.*, s.price_per_hour FROM bookings b JOIN slots s ON s.id = b.slot_id WHERE b.id = ? AND b.user_id = ?").get(req.params.id, req.user.id);
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
+    const extraAmount = booking.price_per_hour * 1;
+    if (user.wallet < extraAmount) return res.status(402).json({ error: "Insufficient wallet" });
+
+    const currentEnd = new Date(`${booking.date} ${booking.end_time}`).getTime();
+    const newEndTs = (isNaN(currentEnd) ? Date.now() : currentEnd) + 3600000;
+    const newEndTime = new Date(newEndTs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    db.prepare("UPDATE bookings SET end_time = ?, duration = duration + 1, amount = amount + ? WHERE id = ?").run(newEndTime, extraAmount, booking.id);
+    db.prepare("UPDATE users SET wallet = wallet - ? WHERE id = ?").run(extraAmount, req.user.id);
+    db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "debit", extraAmount, `Extended ${booking.id}`);
+
+    res.json({ ok: true, newEndTime, extraAmount });
+  } catch (err) {
+    res.status(500).json({ error: "Extension failed" });
+  }
 });
 
 export default router;

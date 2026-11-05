@@ -104,6 +104,20 @@ export function ParkingProvider({ children }) {
     }
   };
 
+  const extendBooking = async (bookingId) => {
+    try {
+      const res = await api.post("/bookings/" + bookingId + "/extend");
+      await fetchSlots();
+      await fetchBookings();
+      await fetchWallet();
+      await refreshUser();
+      addActivity("Extended booking " + bookingId + " by 1 hr", "warn");
+      return { ok: true, newEndTime: res.data.newEndTime };
+    } catch (err) {
+      return { ok: false, message: err.response?.data?.error || "Extension failed" };
+    }
+  };
+
   const topUp = async (amount) => {
     try {
       await api.post("/wallet/topup", { amount });
@@ -128,12 +142,15 @@ export function ParkingProvider({ children }) {
   return (
     <ParkingContext.Provider value={{ 
       slots, bookings, wallet, points, activity, stats, 
-            bookSlot, cancelBooking, topUp, addActivity, refreshWallet,
+            bookSlot, cancelBooking, topUp, addActivity, refreshWallet, extendBooking,
       offlineQueue: [], MOCK_LEADERBOARD 
     }}>
       {children}
     </ParkingContext.Provider>
   );
 }
+
+
+
 
 
