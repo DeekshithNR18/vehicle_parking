@@ -28,6 +28,7 @@ export default function ParkingMap() {
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState("");
   const [isBooking, setIsBooking] = useState(false);
+  const [hours, setHours] = useState(2);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -64,7 +65,7 @@ export default function ParkingMap() {
     setIsBooking(true);
     setError("");
 
-    const result = await bookSlot(selectedSlot);
+    const result = await bookSlot(selectedSlot, hours);
     
     if (!result.ok) {
       setError(result.message || "This slot was just booked by someone else.");
@@ -153,7 +154,7 @@ export default function ParkingMap() {
             </MapContainer>
             <div className="absolute bottom-6 left-6 right-6 md:right-auto md:w-80 bg-deep/90 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-2xl z-[400]">
               <h3 className="font-bold text-textp flex items-center gap-2 mb-2"><Route size={18} className="text-mint"/> Route to Gate A</h3>
-              <p className="text-sm text-muted mb-4">Distance: 250m • Est. time: 2 mins</p>
+              <p className="text-sm text-muted mb-4">Distance: 250m ï¿½ Est. time: 2 mins</p>
               <div className="space-y-2 text-sm text-textp">
                 <p>1. Head <strong className="text-mint">South</strong> toward Main Rd.</p>
                 <p>2. Turn <strong className="text-mint">Right</strong> at the Society entrance.</p>
@@ -190,8 +191,32 @@ export default function ParkingMap() {
                 <X size={24} />
               </button>
               <h2 className="text-2xl font-bold mb-2">Book Slot {selectedSlot.label}</h2>
-              <p className="text-muted mb-6">Total: Rs.{selectedSlot.pricePerHour * 2} (2 hrs)</p>
-              
+              <p className="text-muted mb-4">Rate: Rs.{selectedSlot.pricePerHour}/hr</p>
+
+<div className="mb-6">
+  <label className="text-xs text-muted font-bold tracking-wider uppercase mb-2 block">Duration</label>
+  <div className="flex flex-wrap gap-2">
+    {[1, 2, 4, 6, 8, 12].map(h => (
+      <button
+        key={h}
+        type="button"
+        onClick={() => setHours(h)}
+        className={`px-4 py-2 rounded-lg border text-sm font-semibold transition-all ${
+          hours === h 
+            ? "bg-mint text-deep border-mint" 
+            : "bg-deep/50 text-muted border-white/10 hover:bg-white/5"
+        }`}
+      >
+        {h}h
+      </button>
+    ))}
+  </div>
+</div>
+
+<div className="flex justify-between items-center p-4 bg-deep/50 rounded-xl border border-white/5 mb-4">
+  <span className="text-muted">Total</span>
+  <span className="text-2xl font-bold text-mint">Rs. {selectedSlot.pricePerHour * hours}</span>
+</div>
               {error && (
                 <div className="mb-4 p-3 bg-danger/10 border border-danger/30 rounded-xl text-danger text-sm">
                   {error}

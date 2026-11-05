@@ -11,17 +11,22 @@ router.post("/", authRequired, (req, res) => {
     const slot = db.prepare("SELECT * FROM slots WHERE id = ?").get(slotId);
     if (!slot) return res.status(404).json({ error: "Slot not found" });
     if (slot.status !== "available") return res.status(409).json({ error: "Slot not available" });
-    const amount = slot.price_per_hour * duration;
+
+    const hours = duration || 2;
+    const amount = slot.price_per_hour * hours;
     const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
-    if (!user) return res.status(404).json({ error: "User not found. Please log out and log in again." });
+    if (!user) return res.status(404).json({ error: "User not found. Please log in again." });
     if (user.wallet < amount) return res.status(402).json({ error: "Insufficient wallet" });
+
     const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
-    db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, duration, amount);
+    db.prepare("INSERT INTO bookings (id, user_id, slot_id, date, start_time, duration, amount) VALUES (?, ?, ?, ?, ?, ?, ?)").run(bookingId, req.user.id, slotId, date, startTime, hours, amount);
     db.prepare("UPDATE slots SET status = 'reserved' WHERE id = ?").run(slotId);
     db.prepare("UPDATE users SET wallet = wallet - ? WHERE id = ?").run(amount, req.user.id);
+
     const earnedPoints = slot.type === "ev" ? 50 : 20;
     db.prepare("UPDATE users SET points = points + ? WHERE id = ?").run(earnedPoints, req.user.id);
-    db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "debit", amount, `Booking ${slot.label}`);
+    db.prepare("INSERT INTO transactions (id, user_id, type, amount, note) VALUES (?, ?, ?, ?, ?)").run(uuid(), req.user.id, "debit", amount, `Booking ${slot.label} for ${hours} hrs`);
+
     res.json({ ok: true, bookingId, amount, earnedPoints });
   } catch (err) {
     console.error(err);
@@ -44,4 +49,3 @@ router.post("/:id/cancel", authRequired, (req, res) => {
 });
 
 export default router;
-

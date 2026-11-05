@@ -69,13 +69,13 @@ export function ParkingProvider({ children }) {
     setActivity((prev) => [{ id: Date.now(), text, type, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 20));
   };
 
-  const bookSlot = async (slot) => {
+  const bookSlot = async (slot, hours = 2) => {
     try {
       const res = await api.post("/bookings", {
         slotId: slot.id,
         date: new Date().toISOString().split("T")[0],
         startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        duration: 2,
+        duration: hours,
       });
 
       await fetchSlots();
@@ -134,3 +134,4 @@ export function ParkingProvider({ children }) {
     </ParkingContext.Provider>
   );
 }
+

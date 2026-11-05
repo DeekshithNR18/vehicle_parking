@@ -78,6 +78,10 @@ export default function MyBookings() {
                     <div className="bg-deep/50 p-3 rounded-xl border border-white/5">
                       <p className="text-xs text-muted mb-1 flex items-center gap-1"><Calendar size={12}/> Amount</p>
                       <p className="font-bold text-lg text-azure">Rs. {booking.amount}</p>
+                      <div className="bg-deep/50 p-3 rounded-xl border border-white/5 mt-2">
+  <p className="text-xs text-muted mb-1 flex items-center gap-1"><Clock size={12}/> Duration</p>
+  <p className="font-bold">{booking.hours} hours</p>
+</div>
                     </div>
                     <div className="bg-deep/50 p-3 rounded-xl border border-white/5">
                       <p className="text-xs text-muted mb-1 flex items-center gap-1"><Clock size={12}/> Start</p>
